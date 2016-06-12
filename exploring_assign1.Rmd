@@ -1,0 +1,77 @@
+---
+title: "Exploring Capstone Dataset"
+author: "Paolo Di Lorenzo"
+date: "June 12, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction and File Loading
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r echo=TRUE,message=FALSE,cache=TRUE}
+
+library(Rgraphviz)
+library(R.utils)
+library(tm)
+countLines("./en_US.blogs.txt")
+countLines("./en_US.news.txt")
+countLines("./en_US.twitter.txt")
+```
+
+```{r echo=TRUE,message=FALSE,cache=TRUE}
+
+set.seed(5150)
+percentage <- .05
+## sample blogs at text percentage
+original <- file("./en_US.blogs.txt","r")
+file_blog <- readLines(original)
+reduced <- file_blog[rbinom(n = length(file_blog), size = 1, prob = percentage) == 1]
+close(original)
+conn <- file("./en_US.blogs_reduced.txt", "w")
+writeLines(reduced, con = conn)
+close(conn)
+## sample news at text percentage
+original <- file("./en_US.news.txt","r")
+file_news <- readLines(original)
+reduced <- file_news[rbinom(n = length(file_news), size = 1, prob = percentage) == 1]
+close(original)
+conn <- file("./en_US.news_reduced.txt", "w")
+writeLines(reduced, con = conn)
+close(conn)
+## sample twitter at text percentage
+original <- file("./en_US.twitter.txt","r")
+file_twit <- readLines(original)
+reduced <- file_twit[rbinom(n = length(file_twit), size = 1, prob = percentage) == 1]
+close(original)
+conn <- file("./en_US.twitter_reduced.txt", "w")
+writeLines(reduced, con = conn)
+close(conn)
+#save memory resources
+rm(file_news)
+rm(file_blog)
+rm(file_twit)
+rm(reduced)
+```
+
+## Creating the Corpus and performing Data Cleaning
+
+You can also embed plots, for example:
+
+```{r echo=TRUE,message=FALSE,cache=TRUE}
+# create a new reduced corpus
+mainCorpus<-Corpus(DirSource("./",pattern = "reduced"))
+# clean the data
+mainCorpus<-tm_map(mainCorpus,removePunctuation)
+mainCorpus<-tm_map(mainCorpus, stripWhitespace)
+mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
+mainCorpus<-tm_map(mainCorpus,removeNumbers)
+```
+
+Note that the `object.size(mainCorpus)` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

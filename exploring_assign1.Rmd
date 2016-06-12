@@ -8,11 +8,11 @@ output: html_document
 
 ## Introduction and File Loading
 
-The document describes the analysis performed on the dataset providec for the Capstone project that is made of 3 files:   
+The document describes the analysis performed on the dataset provided for the Capstone project that is made of 3 files:   
 
-* The first one is a collection from blog articles in english
-* The second one is a collection from news articles in english
-* The third one is a collection from twitter posts in english
+* The first one is a collection from blog articles in English
+* The second one is a collection from news articles in English
+* The third one is a collection from twitter posts in English
 
    
 Files are quite big (more than 500Mb) and could not be handled and analyzed quickly with normal computing processing power, so some kind of sampling will be performed as will be explained later on.
@@ -32,7 +32,7 @@ countLines("./en_US/en_US.twitter.txt")[1]
    The next chunk of code will execute sampling of the original files. The steps are performed as follows:   
 
 1. Original file is read from file system   
-2. I sample the lines of the original file using a binomial probability distribution with a 5% sampling rate (that is I take 1/20th of the original file)
+2. I sample the lines of the original file using a binomial probability distribution with a 4% sampling rate (that is I take 1/20th of the original file)
 3. I write back the file to file system with an appendix "reduced" in the filename so I could filter it up later on
 4. I remove old variables because they consume large amounts of memory
 
@@ -40,7 +40,7 @@ countLines("./en_US/en_US.twitter.txt")[1]
 ```{r echo=TRUE,message=FALSE,cache=TRUE,warning=FALSE}
 
 set.seed(5150)
-percentage <- .05
+percentage <- .04
 ## sample blogs at text percentage
 original <- file("./en_US/en_US.blogs.txt","r")
 file_blog <- readLines(original)
@@ -82,13 +82,15 @@ countLines("./en_US/en_US.twitter_reduced.txt")[1]
 
 ## Creating the Corpus and performing Data Cleaning
 
-Once a new subsampled dataset has been created the next step is loading into memory as a large collection of text (also known as Corpus).
+Once a new sub-sampled dataset has been created the next step is loading into memory as a large collection of text (also known as Corpus).
 The Corpus needs some cleaning since there are a lot of unusable characters for text prediction, so I use the 'tm' package built-in functions to remove:
+
 * Punctuation
-* Useless whitespaces
+* Useless white-spaces
 * Transform all to lowercase so words can be compared
-* Remove numbers that cannot count as words (this caould be arguable but at the moment I can not evaluate all 4 as the word "for", I would have to evaluate the semantics of every sentence)
-   I finally obtain a small and manageable dataset (almost 40Mb).   
+* Remove numbers that cannot count as words (this could be arguable but at the moment I can not evaluate all 4 as the word "for", I would have to evaluate the semantics of every sentence)
+
+   I finally obtain a small and manageable dataset (almost 25Mb).   
 
 ```{r echo=TRUE,message=FALSE,cache=TRUE}
 # create a new reduced corpus
@@ -99,33 +101,79 @@ mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
 mainCorpus<-tm_map(mainCorpus,removeNumbers)
 object.size(mainCorpus)
+summary(mainCorpus)
 ```
    
 ## Exploratory Data Analysis
 
+Collected data are then explored using a term document matrix that is a matrix containing the occurrences of the single words within a text.   
+This matrix is useful to evaluate the most commonly used words. I will perform this kind of analysis in two way:
+
+* Including stop-words that are common words used within sentences as conjunctions or adverbs (and, in, the, ...)
+* Excluding stop-words
+
+
+   
 ```{r echo=TRUE,message=FALSE,cache=TRUE}
 # create a term document matrix including stopwords
 TDM_stopwords <- TermDocumentMatrix(mainCorpus, control = list(stopwords = FALSE))
-limit <- 5000
+limit <- 7000
 # find the most used words
 findFreqTerms(TDM_stopwords, limit, Inf)
+```
+
+   
+The Term Document Matrix is made of `r dim(TDM_stopwords)[1]` words.  
+   
+Once I found the most frequent terms, including stop-words, I order them by occurrence and I plot them in 2 ways:
+
+* as a bar plot of the occurrence
+* as a graph evaluating higher correlations (>.8) between words
+
+
+   
+```{r echo=TRUE,message=FALSE,cache=TRUE}
 m_stop <- as.matrix(TDM_stopwords)
 v_stop <- sort(rowSums(m_stop), decreasing=TRUE)
 #plot a histogram of the most used words
-plot(head(v_stop, 15),type = 'h',main = "Most frequent words including Stopwords")
-# plot the correlation matrix of the 20 most used words
+barplot(head(v_stop, 15),names.arg = names(head(v_stop,15)),axes = T, cex.axis =.7,cex.names = .7,main = "Most frequent words including Stopwords")
+# plot the correlation graph of the 20 most used words
 plot(TDM_stopwords,terms=names(v_stop[1:20]), corThreshold = 0.8, weighting = F)
 ```
+   
+The most used words excluding stop-words are:
 
 ```{r echo=TRUE,message=FALSE,cache=TRUE}
 # create a term document matrix including stopwords
 TDM_nostopwords <- TermDocumentMatrix(mainCorpus, control = list(stopwords = TRUE))
 # find the most used words
 findFreqTerms(TDM_nostopwords, limit, Inf)
+```
+
+The Term Document Matrix without stop-words is made of `r dim(TDM_nostopwords)[1]` words.      
+   
+Once I found the most frequent terms, excluding stop-words, I order them by occurrence and I plot them in 2 ways:
+
+* as a bar plot of the occurrence
+* as a graph evaluating higher correlations (>.8) between words
+
+
+
+```{r echo=TRUE,message=FALSE,cache=TRUE}
 m_nostop <- as.matrix(TDM_nostopwords)
 v_nostop <- sort(rowSums(m_nostop), decreasing=TRUE)
 #plot a histogram of the most used words
-plot(head(v_nostop, 15),type = 'h',main = "Most frequent words excluding Stopwords")
-# plot the correlation matrix of the 20 most used words
-plot(TDM_nostopwords,terms=names(v_nostop[1:25]), corThreshold = 0.8, weighting = F)
+barplot(head(v_nostop, 15),names.arg = names(head(v_nostop,15)),axes = T, cex.axis =.7,cex.names = .7,main = "Most frequent words excluding Stopwords")
+# plot the correlation graph of the 20 most used words
+plot(TDM_nostopwords,terms=names(v_nostop[1:20]), corThreshold = 0.8, weighting = F)
 ```
+
+## Prediction algorithm next steps
+
+The next steps I will perform to create a prediction algorithm is:
+
+* Create a tabled connection between words, this could be done either using correlation between words from text or using the N-Grams once I overcome the issues I found in installing the RWeka package.
+* I will also try to apply stemming to words in the Term document matrix to overcome the difficulties with plurals, verb persons and other variation of the same words (eg. create, creates, created and creating have all the same stem)
+* I will apply dictionary based filtering to remove all words that make no sense and try to predict only dictionary words using Hunspell.
+
+

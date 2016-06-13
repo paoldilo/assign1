@@ -23,16 +23,18 @@ The number of lines in each files are:
 library(Rgraphviz)
 library(R.utils)
 library(tm)
+library(stringi)
 countLines("./en_US/en_US.blogs.txt")[1]
 countLines("./en_US/en_US.news.txt")[1]
 countLines("./en_US/en_US.twitter.txt")[1]
+
 ```
 
    
    The next chunk of code will execute sampling of the original files. The steps are performed as follows:   
 
 1. Original file is read from file system   
-2. I sample the lines of the original file using a binomial probability distribution with a 4% sampling rate (that is I take 1/20th of the original file)
+2. I sample the lines of the original file using a binomial probability distribution with a 4% sampling rate (that is I take 1/25th of the original file)
 3. I write back the file to file system with an appendix "reduced" in the filename so I could filter it up later on
 4. I remove old variables because they consume large amounts of memory
 
@@ -44,25 +46,31 @@ percentage <- .04
 ## sample blogs at text percentage
 original <- file("./en_US/en_US.blogs.txt","r")
 file_blog <- readLines(original)
+blogs_words <- sum(stri_count_words(file_blog))
 reduced <- file_blog[rbinom(n = length(file_blog), size = 1, prob = percentage) == 1]
 close(original)
 conn <- file("./en_US/en_US.blogs_reduced.txt", "w")
+blogs_words_red <- sum(stri_count_words(reduced))
 writeLines(reduced, con = conn)
 close(conn)
 ## sample news at text percentage
 original <- file("./en_US/en_US.news.txt","r")
 file_news <- readLines(original)
+news_words <- sum(stri_count_words(file_news))
 reduced <- file_news[rbinom(n = length(file_news), size = 1, prob = percentage) == 1]
 close(original)
 conn <- file("./en_US/en_US.news_reduced.txt", "w")
+news_words_red <- sum(stri_count_words(reduced))
 writeLines(reduced, con = conn)
 close(conn)
 ## sample twitter at text percentage
 original <- file("./en_US/en_US.twitter.txt","r")
 file_twit <- readLines(original)
+twit_words <- sum(stri_count_words(file_twit))
 reduced <- file_twit[rbinom(n = length(file_twit), size = 1, prob = percentage) == 1]
 close(original)
 conn <- file("./en_US/en_US.twitter_reduced.txt", "w")
+twit_words_red <- sum(stri_count_words(reduced))
 writeLines(reduced, con = conn)
 close(conn)
 #save memory resources
@@ -72,12 +80,20 @@ rm(file_twit)
 rm(reduced)
 ```
 
-   The new files are more manageable having fewer lines:
+   The new files are more manageable having fewer words:
 
 ```{r echo=TRUE,message=FALSE,cache=TRUE}
-countLines("./en_US/en_US.blogs_reduced.txt")[1]
-countLines("./en_US/en_US.news_reduced.txt")[1]
-countLines("./en_US/en_US.twitter_reduced.txt")[1]
+#compute word statistics
+statistics <- matrix(nrow=3,ncol=2)
+statistics[1,1]<- blogs_words
+statistics[1,2]<- blogs_words_red
+statistics[2,1]<- news_words
+statistics[2,2]<- news_words_red
+statistics[3,1]<- twit_words
+statistics[3,2]<- twit_words_red
+rownames(statistics)<- c("Blogs","News","Twitter")
+colnames(statistics)<- c("Original","Sampled")
+statistics
 ```
 
 ## Creating the Corpus and performing Data Cleaning
@@ -100,8 +116,6 @@ mainCorpus<-tm_map(mainCorpus,removePunctuation)
 mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
 mainCorpus<-tm_map(mainCorpus,removeNumbers)
-object.size(mainCorpus)
-summary(mainCorpus)
 ```
    
 ## Exploratory Data Analysis

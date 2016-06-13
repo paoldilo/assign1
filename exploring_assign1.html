@@ -135,6 +135,7 @@ $(document).ready(function () {
 <pre class="r"><code>library(Rgraphviz)
 library(R.utils)
 library(tm)
+library(stringi)
 countLines(&quot;./en_US/en_US.blogs.txt&quot;)[1]</code></pre>
 <pre><code>## [1] 899288</code></pre>
 <pre class="r"><code>countLines(&quot;./en_US/en_US.news.txt&quot;)[1]</code></pre>
@@ -145,7 +146,7 @@ countLines(&quot;./en_US/en_US.blogs.txt&quot;)[1]</code></pre>
 <ol style="list-style-type: decimal">
 <li>Original file is read from file system<br />
 </li>
-<li>I sample the lines of the original file using a binomial probability distribution with a 4% sampling rate (that is I take 1/20th of the original file)</li>
+<li>I sample the lines of the original file using a binomial probability distribution with a 4% sampling rate (that is I take 1/25th of the original file)</li>
 <li>I write back the file to file system with an appendix “reduced” in the filename so I could filter it up later on</li>
 <li>I remove old variables because they consume large amounts of memory</li>
 </ol>
@@ -154,25 +155,31 @@ percentage &lt;- .04
 ## sample blogs at text percentage
 original &lt;- file(&quot;./en_US/en_US.blogs.txt&quot;,&quot;r&quot;)
 file_blog &lt;- readLines(original)
+blogs_words &lt;- sum(stri_count_words(file_blog))
 reduced &lt;- file_blog[rbinom(n = length(file_blog), size = 1, prob = percentage) == 1]
 close(original)
 conn &lt;- file(&quot;./en_US/en_US.blogs_reduced.txt&quot;, &quot;w&quot;)
+blogs_words_red &lt;- sum(stri_count_words(reduced))
 writeLines(reduced, con = conn)
 close(conn)
 ## sample news at text percentage
 original &lt;- file(&quot;./en_US/en_US.news.txt&quot;,&quot;r&quot;)
 file_news &lt;- readLines(original)
+news_words &lt;- sum(stri_count_words(file_news))
 reduced &lt;- file_news[rbinom(n = length(file_news), size = 1, prob = percentage) == 1]
 close(original)
 conn &lt;- file(&quot;./en_US/en_US.news_reduced.txt&quot;, &quot;w&quot;)
+news_words_red &lt;- sum(stri_count_words(reduced))
 writeLines(reduced, con = conn)
 close(conn)
 ## sample twitter at text percentage
 original &lt;- file(&quot;./en_US/en_US.twitter.txt&quot;,&quot;r&quot;)
 file_twit &lt;- readLines(original)
+twit_words &lt;- sum(stri_count_words(file_twit))
 reduced &lt;- file_twit[rbinom(n = length(file_twit), size = 1, prob = percentage) == 1]
 close(original)
 conn &lt;- file(&quot;./en_US/en_US.twitter_reduced.txt&quot;, &quot;w&quot;)
+twit_words_red &lt;- sum(stri_count_words(reduced))
 writeLines(reduced, con = conn)
 close(conn)
 #save memory resources
@@ -180,13 +187,22 @@ rm(file_news)
 rm(file_blog)
 rm(file_twit)
 rm(reduced)</code></pre>
-<p>The new files are more manageable having fewer lines:</p>
-<pre class="r"><code>countLines(&quot;./en_US/en_US.blogs_reduced.txt&quot;)[1]</code></pre>
-<pre><code>## [1] 44903</code></pre>
-<pre class="r"><code>countLines(&quot;./en_US/en_US.news_reduced.txt&quot;)[1]</code></pre>
-<pre><code>## [1] 50577</code></pre>
-<pre class="r"><code>countLines(&quot;./en_US/en_US.twitter_reduced.txt&quot;)[1]</code></pre>
-<pre><code>## [1] 117974</code></pre>
+<p>The new files are more manageable having fewer words:</p>
+<pre class="r"><code>#compute word statistics
+statistics &lt;- matrix(nrow=3,ncol=2)
+statistics[1,1]&lt;- blogs_words
+statistics[1,2]&lt;- blogs_words_red
+statistics[2,1]&lt;- news_words
+statistics[2,2]&lt;- news_words_red
+statistics[3,1]&lt;- twit_words
+statistics[3,2]&lt;- twit_words_red
+rownames(statistics)&lt;- c(&quot;Blogs&quot;,&quot;News&quot;,&quot;Twitter&quot;)
+colnames(statistics)&lt;- c(&quot;Original&quot;,&quot;Sampled&quot;)
+statistics</code></pre>
+<pre><code>##         Original Sampled
+## Blogs   37541795 1484443
+## News    34762303 1384139
+## Twitter 30092866 1205392</code></pre>
 </div>
 <div id="creating-the-corpus-and-performing-data-cleaning" class="section level2">
 <h2>Creating the Corpus and performing Data Cleaning</h2>
@@ -204,14 +220,7 @@ mainCorpus&lt;-Corpus(DirSource(&quot;./en_US/&quot;,pattern = &quot;reduced&quo
 mainCorpus&lt;-tm_map(mainCorpus,removePunctuation)
 mainCorpus&lt;-tm_map(mainCorpus, stripWhitespace)
 mainCorpus&lt;-tm_map(mainCorpus, content_transformer(tolower))
-mainCorpus&lt;-tm_map(mainCorpus,removeNumbers)
-object.size(mainCorpus)</code></pre>
-<pre><code>## 32405080 bytes</code></pre>
-<pre class="r"><code>summary(mainCorpus)</code></pre>
-<pre><code>##                           Length Class             Mode
-## en_US.blogs_reduced.txt   2      PlainTextDocument list
-## en_US.news_reduced.txt    2      PlainTextDocument list
-## en_US.twitter_reduced.txt 2      PlainTextDocument list</code></pre>
+mainCorpus&lt;-tm_map(mainCorpus,removeNumbers)</code></pre>
 </div>
 <div id="exploratory-data-analysis" class="section level2">
 <h2>Exploratory Data Analysis</h2>
@@ -234,7 +243,7 @@ findFreqTerms(TDM_stopwords, limit, Inf)</code></pre>
 ## [36] &quot;that&quot;   &quot;the&quot;    &quot;their&quot;  &quot;them&quot;   &quot;there&quot;  &quot;they&quot;   &quot;this&quot;  
 ## [43] &quot;time&quot;   &quot;was&quot;    &quot;were&quot;   &quot;what&quot;   &quot;when&quot;   &quot;which&quot;  &quot;who&quot;   
 ## [50] &quot;will&quot;   &quot;with&quot;   &quot;would&quot;  &quot;you&quot;    &quot;your&quot;</code></pre>
-<p>The Term Document Matrix is made of words.</p>
+<p>The Term Document Matrix is made of 142944 words.</p>
 <p>Once I found the most frequent terms, including stop-words, I order them by occurrence and I plot them in 2 ways:</p>
 <ul>
 <li>as a bar plot of the occurrence</li>

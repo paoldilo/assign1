@@ -21,6 +21,7 @@ percentage <- .03
 ## sample blogs at text percentage
 original <- file("./en_US/en_US.blogs.txt","r")
 file_blog <- readLines(original)
+blogs_words <- sum(stri_count_words(file_blog))
 reduced <- file_blog[rbinom(n = length(file_blog), size = 1, prob = percentage) == 1]
 close(original)
 conn <- file("./en_US/en_US.blogs_reduced.txt", "w")

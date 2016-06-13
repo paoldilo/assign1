@@ -3,6 +3,7 @@
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("Rgraphviz")
 library(Rgraphviz)
+library(RWeka)
 library(R.utils)
 library(tm)
 

@@ -39,4 +39,7 @@ v_nostop <- sort(rowSums(m_nostop), decreasing=TRUE)
 BigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 2, max = 2))}
 TDM_2words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = BigramTokenizer))
 
+TrigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 3, max = 3))}
+TDM_3words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = TrigramTokenizer))
+
 inspect(removeSparseTerms(TDM_2words[, 1:10], 0.7))

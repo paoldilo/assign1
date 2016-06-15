@@ -17,7 +17,7 @@
 # countLines("./en_US/en_US.news.txt")
 # countLines("./en_US/en_US.twitter.txt")
 set.seed(5150)
-percentage <- .03
+percentage <- .04
 ## sample blogs at text percentage
 original <- file("./en_US/en_US.blogs.txt","r")
 file_blog <- readLines(original)

@@ -34,8 +34,9 @@ v_nostop <- sort(rowSums(m_nostop), decreasing=TRUE)
 #Can I use bigrams instead of single tokens in a term-document matrix?
 #Yes. Package NLP provides functionality to compute n-grams which can be used to construct a corresponding tokenizer. E.g.:
      
-BigramTokenizer <- function(x)
-          unlist(lapply(ngrams(words(x), 2), paste, collapse = " "), use.names = FALSE)
+#BigramTokenizer <- function(x)unlist(lapply(ngrams(words(x), 2), paste, collapse = " "), use.names = FALSE)
+#tdm <- NGramTokenizer(mainCorpus, control = list(tokenize = BigramTokenizer))
+BigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 2, max = 2))}
+TDM_2words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = BigramTokenizer))
 
-tdm <- NGramTokenizer(mainCorpus, control = list(tokenize = BigramTokenizer))
-inspect(removeSparseTerms(tdm[, 1:10], 0.7))
+inspect(removeSparseTerms(TDM_2words[, 1:10], 0.7))

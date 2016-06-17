@@ -14,6 +14,8 @@ mainCorpus<-tm_map(mainCorpus,removePunctuation)
 mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
 mainCorpus<-tm_map(mainCorpus,removeNumbers)
+mainCorpus<-tm_map(mainCorpus, removeWords, stopwords("english"))
+mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
 
 TDM_stopwords <- TermDocumentMatrix(mainCorpus, control = list(stopwords = FALSE))
 limit <- 5000

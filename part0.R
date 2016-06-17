@@ -6,10 +6,10 @@ sample <- function(filename, prob){
      set.seed(5150)
      reduced <- file[rbinom(n = length(file), size = 1, prob = prob) == 1]
      close(original)
-     conn <- file(paste(filename, "_red", ".txt",sep=""), "w")
+     conn <- file(paste(filename, "_reduced", ".txt",sep=""), "w")
      writeLines(reduced, con = conn)
      close(conn)}
-percentage <- .04
+percentage <- .10
 sample(filename = "./en_US/en_US.blogs.txt",prob = percentage)
 sample(filename = "./en_US/en_US.news.txt",prob = percentage)
 sample(filename = "./en_US/en_US.twitter.txt",prob = percentage)

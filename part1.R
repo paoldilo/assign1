@@ -8,16 +8,23 @@ library(R.utils)
 library(tm)
 
 # create a new reduced corpus
+mainCorpus<-Corpus(DirSource("./en_US/",pattern = "corpus"))
 mainCorpus<-Corpus(DirSource("./en_US/",pattern = "reduced"))
 # clean the data
 mainCorpus<-tm_map(mainCorpus,removePunctuation)
-mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
 mainCorpus<-tm_map(mainCorpus,removeNumbers)
-mainCorpus<-tm_map(mainCorpus, removeWords, stopwords("english"))
+rmSpecialChars <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
+mainCorpus <- tm_map(mainCorpus, rmSpecialChars, "/|@|\\|#")
+mainCorpus<-tm_map(mainCorpus, stripWhitespace)
+#mainCorpus<-tm_map(mainCorpus, removeWords, stopwords("english"))
 mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
+save(mainCorpus, file = "./en_US/en_US.corpus.txt")
+options(mc.cores=1)
 
-TDM_stopwords <- TermDocumentMatrix(mainCorpus, control = list(stopwords = FALSE))
+TDM_stopwords <- TermDocumentMatrix(mainCorpus)
+pSparsity <- .98
+tdm <- removeSparseTerms(tdmComplete, pSparsity)
 limit <- 5000
 high_stop <-findFreqTerms(TDM_stopwords, limit, Inf)
 m_stop <- as.matrix(TDM_stopwords)
@@ -38,6 +45,9 @@ v_nostop <- sort(rowSums(m_nostop), decreasing=TRUE)
      
 #BigramTokenizer <- function(x)unlist(lapply(ngrams(words(x), 2), paste, collapse = " "), use.names = FALSE)
 #tdm <- NGramTokenizer(mainCorpus, control = list(tokenize = BigramTokenizer))
+UnigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 1, max = 1))}
+TDM_1word <- TermDocumentMatrix(mainCorpus, control = list(tokenize = UnigramTokenizer))
+
 BigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 2, max = 2))}
 TDM_2words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = BigramTokenizer))
 

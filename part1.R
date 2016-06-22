@@ -54,4 +54,7 @@ TDM_2words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = BigramTok
 TrigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 3, max = 3))}
 TDM_3words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = TrigramTokenizer))
 
+FourgramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 4, max = 4))}
+TDM_4words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = FourgramTokenizer))
+
 inspect(removeSparseTerms(TDM_2words[, 1:10], 0.7))

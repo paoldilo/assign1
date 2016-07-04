@@ -16,8 +16,8 @@ mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
 mainCorpus<-tm_map(mainCorpus,removeNumbers)
 rmSpecialChars <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
 mainCorpus <- tm_map(mainCorpus, rmSpecialChars, "/|@|\\|#|€|£|$")
-mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
+mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 
 TDM_2words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = BigramTokenizer))
 
@@ -31,8 +31,8 @@ mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
 mainCorpus<-tm_map(mainCorpus,removeNumbers)
 rmSpecialChars <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
 mainCorpus <- tm_map(mainCorpus, rmSpecialChars, "/|@|\\|#|€|£|$")
-mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
+mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 
 TDM_2words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = BigramTokenizer))
 
@@ -57,12 +57,12 @@ mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
 mainCorpus<-tm_map(mainCorpus,removeNumbers)
 rmSpecialChars <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
 mainCorpus <- tm_map(mainCorpus, rmSpecialChars, "/|@|\\|#|€|£|$")
-mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
+mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 
 TDM_2words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = BigramTokenizer))
 
-dictMatrix2 <- as.data.frame(cbind(TDM_2words$dimnames$Terms,word(TDM_2words$dimnames$Terms,1),word(TDM_2words$dimnames$Terms,2),TDM_2words$v),stringsAsFactors=FALSE)
+dictMatrix2 <- as.data.frame(cbind(TDM_2words$dimnames$Terms,word(TDM_2words$dimnames$Terms,1),word(TDM_2words$dimnames$Terms,2),as.numeric(TDM_2words$v)),stringsAsFactors=FALSE)
 colnames(dictMatrix2) <- c("BI","One","Two","Value")
 
 dictMatrix3 <- merge(dictMatrix,dictMatrix2,by="BI",all = TRUE)
@@ -75,3 +75,9 @@ dictMatrix <- dictMatrix3[1:4]
 colnames(dictMatrix) <- c("BI","One","Two","Value")
 rm(dictMatrix3)
 rm(dictMatrix2)
+
+dictMatrix2 <- dictMatrix[dictMatrix$Value>1,]
+rm(dictMatrix)
+
+write.table(dictMatrix3,file="dictionary.txt",quote=F)
+

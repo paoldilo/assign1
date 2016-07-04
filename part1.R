@@ -21,6 +21,7 @@ mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
 save(mainCorpus, file = "./en_US/en_US.corpus.txt")
 options(mc.cores=1)
+options(java.parameters = "-Xmx4g")
 
 TDM_stopwords <- TermDocumentMatrix(mainCorpus)
 pSparsity <- .98

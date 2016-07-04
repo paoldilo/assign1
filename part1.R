@@ -10,12 +10,15 @@ library(tm)
 # create a new reduced corpus
 mainCorpus<-Corpus(DirSource("./en_US/",pattern = "corpus"))
 mainCorpus<-Corpus(DirSource("./en_US/",pattern = "reduced"))
+mainCorpus_b<-Corpus(DirSource("./en_US/",pattern = "en_US.blogs.txt_reduced"))
+mainCorpus_n<-Corpus(DirSource("./en_US/",pattern = "en_US.news.txt_reduced"))
+mainCorpus_t<-Corpus(DirSource("./en_US/",pattern = "en_US.twitter.txt_reduced"))
 # clean the data
 mainCorpus<-tm_map(mainCorpus,removePunctuation)
 mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
 mainCorpus<-tm_map(mainCorpus,removeNumbers)
 rmSpecialChars <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
-mainCorpus <- tm_map(mainCorpus, rmSpecialChars, "/|@|\\|#")
+mainCorpus <- tm_map(mainCorpus, rmSpecialChars, "/|@|\\|#|_")
 mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 #mainCorpus<-tm_map(mainCorpus, removeWords, stopwords("english"))
 mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
@@ -58,3 +61,8 @@ FourgramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(m
 TDM_4words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = FourgramTokenizer))
 
 inspect(removeSparseTerms(TDM_2words[, 1:10], 0.7))
+zz<- cbind(TDM_2words$dimnames$Terms,word(TDM_2words$dimnames$Terms,1),word(TDM_2words$dimnames$Terms,2),TDM_2words$v)
+zz <- as.data.frame(zz,stringsAsFactors=FALSE)
+zz <- zz[2:4]
+library(plyr)
+

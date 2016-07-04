@@ -2,6 +2,7 @@ set.seed(5150)
 sample <- function(filename, prob){
      original <- file(paste(filename),"r")
      file <- readLines(original)
+     file <- stringi::stri_trans_general(file, "latin-ascii")
      # sampling with rbinom()
      set.seed(5150)
      reduced <- file[rbinom(n = length(file), size = 1, prob = prob) == 1]

@@ -1,69 +1,13 @@
-
-
-#source("https://bioconductor.org/biocLite.R")
-#biocLite("Rgraphviz")
-library(Rgraphviz)
 library(RWeka)
-library(R.utils)
 library(tm)
-
-# create a new reduced corpus
-mainCorpus<-Corpus(DirSource("./en_US/",pattern = "corpus"))
-mainCorpus<-Corpus(DirSource("./en_US/",pattern = "reduced"))
-mainCorpus_b<-Corpus(DirSource("./en_US/",pattern = "en_US.blogs.txt_reduced"))
-mainCorpus_n<-Corpus(DirSource("./en_US/",pattern = "en_US.news.txt_reduced"))
-mainCorpus_t<-Corpus(DirSource("./en_US/",pattern = "en_US.twitter.txt_reduced"))
-# clean the data
-mainCorpus<-tm_map(mainCorpus,removePunctuation)
-mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
-mainCorpus<-tm_map(mainCorpus,removeNumbers)
-rmSpecialChars <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
-mainCorpus <- tm_map(mainCorpus, rmSpecialChars, "/|@|\\|#|_")
-mainCorpus<-tm_map(mainCorpus, stripWhitespace)
-#mainCorpus<-tm_map(mainCorpus, removeWords, stopwords("english"))
-mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
-save(mainCorpus, file = "./en_US/en_US.corpus.txt")
+library(plyr)
+library (stringr)
+library (data.table)
 options(mc.cores=1)
 options(java.parameters = "-Xmx4g")
-
-TDM_stopwords <- TermDocumentMatrix(mainCorpus)
-pSparsity <- .98
-tdm <- removeSparseTerms(tdmComplete, pSparsity)
-limit <- 5000
-high_stop <-findFreqTerms(TDM_stopwords, limit, Inf)
-m_stop <- as.matrix(TDM_stopwords)
-v_stop <- sort(rowSums(m_stop), decreasing=TRUE)
-#plot(head(v_stop, 15) ,type = 'h',main = "Most frequent words including Stopwords")
-#plot(TDM_stopwords,terms=names(v_stop[1:20]), corThreshold = 0.8, weighting = F)
-
-TDM_nostopwords <- TermDocumentMatrix(mainCorpus, control = list(stopwords = TRUE))
-high_nostop <-findFreqTerms(TDM_nostopwords, limit, Inf)
-m_nostop <- as.matrix(TDM_nostopwords)
-v_nostop <- sort(rowSums(m_nostop), decreasing=TRUE)
-#plot(head(v_nostop, 15) ,type = 'h',main = "Most frequent words including Stopwords")
-#plot(TDM_nostopwords,terms=names(v_nostop[1:25]), corThreshold = 0.8, weighting = F)
-
-
-#Can I use bigrams instead of single tokens in a term-document matrix?
-#Yes. Package NLP provides functionality to compute n-grams which can be used to construct a corresponding tokenizer. E.g.:
-     
-#BigramTokenizer <- function(x)unlist(lapply(ngrams(words(x), 2), paste, collapse = " "), use.names = FALSE)
-#tdm <- NGramTokenizer(mainCorpus, control = list(tokenize = BigramTokenizer))
 UnigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 1, max = 1))}
-TDM_1word <- TermDocumentMatrix(mainCorpus, control = list(tokenize = UnigramTokenizer))
-
 BigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 2, max = 2))}
-TDM_2words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = BigramTokenizer))
-
 TrigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 3, max = 3))}
-TDM_3words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = TrigramTokenizer))
-
 FourgramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 4, max = 4))}
-TDM_4words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = FourgramTokenizer))
-
-inspect(removeSparseTerms(TDM_2words[, 1:10], 0.7))
-zz<- cbind(TDM_2words$dimnames$Terms,word(TDM_2words$dimnames$Terms,1),word(TDM_2words$dimnames$Terms,2),TDM_2words$v)
-zz <- as.data.frame(zz,stringsAsFactors=FALSE)
-zz <- zz[2:4]
-library(plyr)
-
+rmSpecialChars <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
+rmSpecialChars2 <- content_transformer(function(x, pattern) gsub(pattern, "", x))

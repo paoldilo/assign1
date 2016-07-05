@@ -1,16 +1,3 @@
-library(RWeka)
-library(tm)
-library(plyr)
-library (stringr)
-library(data.table)
-options(mc.cores=1)
-options(java.parameters = "-Xmx4g")
-UnigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 1, max = 1))}
-BigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 2, max = 2))}
-TrigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 3, max = 3))}
-FourgramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 4, max = 4))}
-rmSpecialChars <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
-rmSpecialChars2 <- content_transformer(function(x, pattern) gsub(pattern, "", x))
 
 ############
 ####parte 1
@@ -96,4 +83,4 @@ dictMatrix <- dictMatrix[dictMatrix$Value>1,]
 dictMatrix <- as.data.frame(cbind(word(dictMatrix$BI,1),word(dictMatrix$BI,2),word(dictMatrix$BI,3),word(dictMatrix$BI,4),as.numeric(dictMatrix$Value)),stringsAsFactors=FALSE)
 colnames(dictMatrix) <- c("C1","C2","C3","C4","Value")
 
-write.table(dictMatrix,file="dictionary4.txt",quote=F,sep=";")
+write.table(dictMatrix,file="dictionary_4w.txt",quote=F,sep=";")

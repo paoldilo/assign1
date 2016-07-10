@@ -58,7 +58,7 @@ dictsum$Value.x <-  as.numeric(dictsum$Value.x) + as.numeric(dictsum$Value.y)*co
 colnames(dictsum) <- c("W4","W5","W6","W1","W2","W3","Value")
 dictsum <- subset(dictsum, select=c(W1,W2,W3,W4,W5,W6,Value))
 #add 2
-dict2<-read.table(file="dictionary_2word_split_nostem.txt",sep=";",colClasses=c("numeric","character","character","numeric"),stringsAsFactors = FALSE)
+dict2<-read.table(file="dictionary_2word_red_nostem.txt",sep=";",colClasses=c("numeric","character","character","numeric"),stringsAsFactors = FALSE)
 colnames(dict2) <- c("W5","W6","Value")
 aa <- rowSums(cbind(dict2$Value))
 aa <- as.data.frame(SimpleGT(table(aa)))
@@ -74,4 +74,4 @@ colnames(dictsum) <- c("W5","W6","W1","W2","W3","W4","Value")
 dictsum <- subset(dictsum, select=c(W1,W2,W3,W4,W5,W6,Value))
 ##write file
 dictsum <- dictsum[order(dictsum$W5),]
-write.table(dictsum,file="dictionary_FINAL_expanded_6.txt",quote=F,sep=";")
+write.table(dictsum,file="dictionary_FINAL_6.txt",quote=F,sep=";")

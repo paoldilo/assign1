@@ -2,13 +2,13 @@
 ############
 ####parte 1
 ############
-mainCorpus<-Corpus(DirSource("./en_US/",pattern = "en_US.news.txt4_reduced"))
+mainCorpus<-Corpus(DirSource("./en_US/",pattern = "en_US.news.txt.ab4_reduced"))
 mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
 mainCorpus<-tm_map(mainCorpus,removeNumbers)
 mainCorpus <- tm_map(mainCorpus, rmSpecialChars, "/|@|\\|#|€|£|$")
 mainCorpus <- tm_map(mainCorpus, rmSpecialChars2, "'")
 mainCorpus<-tm_map(mainCorpus,removePunctuation)
-mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
+#mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
 mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 
 TDM_4words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = FourgramTokenizer))
@@ -20,13 +20,13 @@ dictMatrix <- as.data.table(dictMatrix,key=BI)
 ############
 ####parte 2
 ############
-mainCorpus<-Corpus(DirSource("./en_US/",pattern = "en_US.blogs.txt4_reduced"))
+mainCorpus<-Corpus(DirSource("./en_US/",pattern = "en_US.blogs.txt.ab4_reduced"))
 mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
 mainCorpus<-tm_map(mainCorpus,removeNumbers)
 mainCorpus <- tm_map(mainCorpus, rmSpecialChars, "/|@|\\|#|€|£|$")
 mainCorpus <- tm_map(mainCorpus, rmSpecialChars2, "'")
 mainCorpus<-tm_map(mainCorpus,removePunctuation)
-mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
+#mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
 mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 
 TDM_4words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = FourgramTokenizer))
@@ -50,13 +50,13 @@ rm(dictMatrix2)
 ############
 ####parte 3
 ############
-mainCorpus<-Corpus(DirSource("./en_US/",pattern = "en_US.twitter.txt4_reduced"))
+mainCorpus<-Corpus(DirSource("./en_US/",pattern = "en_US.twitter.txt.ab4_reduced"))
 mainCorpus<-tm_map(mainCorpus, content_transformer(tolower))
 mainCorpus<-tm_map(mainCorpus,removeNumbers)
 mainCorpus <- tm_map(mainCorpus, rmSpecialChars, "/|@|\\|#|€|£|$")
 mainCorpus <- tm_map(mainCorpus, rmSpecialChars2, "'")
 mainCorpus<-tm_map(mainCorpus,removePunctuation)
-mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
+#mainCorpus<- tm_map(mainCorpus, stemDocument, language = "english")
 mainCorpus<-tm_map(mainCorpus, stripWhitespace)
 
 TDM_4words <- TermDocumentMatrix(mainCorpus, control = list(tokenize = FourgramTokenizer))
@@ -78,9 +78,10 @@ rm(dictMatrix2)
 ##################
 ###final assembly
 ##################
-
+write.table(dictMatrix,file="dictionary_4w_full_1.txt",quote=F,sep=";")
 dictMatrix <- dictMatrix[dictMatrix$Value>1,]
-dictMatrix <- as.data.frame(cbind(word(dictMatrix$BI,1),word(dictMatrix$BI,2),word(dictMatrix$BI,3),word(dictMatrix$BI,4),as.numeric(dictMatrix$Value)),stringsAsFactors=FALSE)
-colnames(dictMatrix) <- c("C1","C2","C3","C4","Value")
+#dictMatrix <- as.data.frame(cbind(word(dictMatrix$BI,1),word(dictMatrix$BI,2),word(dictMatrix$BI,3),word(dictMatrix$BI,4),as.numeric(dictMatrix$Value)),stringsAsFactors=FALSE)
+#colnames(dictMatrix) <- c("C1","C2","C3","C4","Value")
 
-write.table(dictMatrix,file="dictionary_4w.txt",quote=F,sep=";")
+write.table(dictMatrix,file="dictionary_4w_1.txt",quote=F,sep=";")
+gc()

@@ -1,7 +1,7 @@
-coeff_2 <- 1
-coeff_3 <- 1
-coeff_4 <- 1
-coeff_5 <- 1
+coeff_2 <- 0.2
+coeff_3 <- 0.4
+coeff_4 <- 0.55
+coeff_5 <- 0.7
 #start from 6 and 5
 dict<-read.table(file="dictionary_6word_split_nostem.txt",sep=";",colClasses=c("numeric","character","character","character","character","character","character","numeric"),stringsAsFactors = FALSE)
 colnames(dict) <- c("W1","W2","W3","W4","W5","W6","Value")
@@ -58,7 +58,7 @@ dictsum$Value.x <-  as.numeric(dictsum$Value.x) + as.numeric(dictsum$Value.y)*co
 colnames(dictsum) <- c("W4","W5","W6","W1","W2","W3","Value")
 dictsum <- subset(dictsum, select=c(W1,W2,W3,W4,W5,W6,Value))
 #add 2
-dict2<-read.table(file="dictionary_2word_red_nostem.txt",sep=";",colClasses=c("numeric","character","character","numeric"),stringsAsFactors = FALSE)
+dict2<-read.table(file="dictionary_2word_split_nostem_new.txt",sep=";",colClasses=c("numeric","character","character","numeric"),stringsAsFactors = FALSE)
 colnames(dict2) <- c("W5","W6","Value")
 aa <- rowSums(cbind(dict2$Value))
 aa <- as.data.frame(SimpleGT(table(aa)))
@@ -73,5 +73,7 @@ dictsum$Value.x <-  as.numeric(dictsum$Value.x) + as.numeric(dictsum$Value.y)*co
 colnames(dictsum) <- c("W5","W6","W1","W2","W3","W4","Value")
 dictsum <- subset(dictsum, select=c(W1,W2,W3,W4,W5,W6,Value))
 ##write file
+dictsum$Value <- dictsum$Value*100
 dictsum <- dictsum[order(dictsum$W5),]
-write.table(dictsum,file="dictionary_FINAL_6.txt",quote=F,sep=";")
+dictsum[is.na(dictsum)]<- ""
+write.table(dictsum,file="dictionary_FINAL_6_new.txt",quote=F,sep=";")

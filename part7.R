@@ -1,8 +1,8 @@
-dict1 <- read.table("dictionary_6w_full_1.txt",sep=";",stringsAsFactors = F)
+dict1 <- read.table("dictionary_2w_new.txt",sep=";",stringsAsFactors = F)
 colnames(dict1) <- c("BI","Value")
 dict1 <- as.data.table(dict1,key=BI)
 
-dict2 <- read.table("dictionary_6w_full.txt",sep=";",stringsAsFactors = F)
+dict2 <- read.table("dictionary_2w_blog.txt",sep=";",stringsAsFactors = F)
 colnames(dict1) <- c("BI","Value")
 dict2 <- as.data.table(dict2,key=BI)
 
@@ -13,7 +13,7 @@ dict2$Value.x <-  as.numeric(dict2$Value.x) + as.numeric(dict2$Value.y)
 dict2 <- dict2[,1:2,with=FALSE]                        
 colnames(dict2) <- c("BI","Value")
 
-write.table(dict2,file="dictionary_6word.txt",quote=F,sep=";")
+write.table(dict2,file="dictionary_2word_new.txt",quote=F,sep=";")
 
 #6
 dict2<-read.table(file="dictionary_6word.txt",sep=";",colClasses=c("numeric","character","numeric"),stringsAsFactors = FALSE)
@@ -60,13 +60,13 @@ dict2 <- merge(dictmatrix,dictMatrix,by=c("W1","W2","Value"),all.x = TRUE)
 dict2 <- subset(dict2, select=c(W1,W2,W3,Value))
 write.table(dict2,file="dictionary_3word_red_nostem.txt",quote=F,sep=";")
 #2
-dict2<-read.table(file="dictionary_2word.txt",sep=";",colClasses=c("numeric","character","numeric"),stringsAsFactors = FALSE)
+dict2<-read.table(file="dictionary_2word_new.txt",sep=";",colClasses=c("numeric","character","numeric"),stringsAsFactors = FALSE)
 #dict2<- dict2[dict2$Value>1,]
 dictMatrix <- as.data.frame(cbind(word(dict2$BI,1),word(dict2$BI,2),as.numeric(dict2$Value)),stringsAsFactors=FALSE)
 colnames(dictMatrix) <- c("W1","W2","Value")
-write.table(dictMatrix,file="dictionary_2word_split_nostem.txt",quote=F,sep=";")
+write.table(dictMatrix,file="dictionary_2word_split_nostem_new.txt",quote=F,sep=";")
 rm(dict2)
 dictmatrix <-aggregate(Value ~ W1, dictMatrix, max)
 dict2 <- merge(dictmatrix,dictMatrix,by=c("W1","Value"),all.x = TRUE)
 dict2 <- subset(dict2, select=c(W1,W2,Value))
-write.table(dict2,file="dictionary_2word_red_nostem.txt",quote=F,sep=";")
+write.table(dict2,file="dictionary_2word_red_nostem_new.txt",quote=F,sep=";")

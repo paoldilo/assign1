@@ -10,9 +10,15 @@ sample <- function(filename, prob,num){
      conn <- file(paste(filename, num,"_reduced", ".txt",sep=""), "w")
      writeLines(reduced, con = conn)
      close(conn)}
-percentage <- .25
+percentage <- .50
+sample(filename = "./en_US/en_US.blogs.txt.aa",prob = percentage,"2")
 sample(filename = "./en_US/en_US.blogs.txt.ab",prob = percentage,"2")
+sample(filename = "./en_US/en_US.blogs.txt.ac",prob = percentage,"2")
+sample(filename = "./en_US/en_US.blogs.txt.ad",prob = percentage,"2")
+sample(filename = "./en_US/en_US.news.txt.aa",prob = percentage,"2")
 sample(filename = "./en_US/en_US.news.txt.ab",prob = percentage,"2")
+sample(filename = "./en_US/en_US.news.txt.ac",prob = percentage,"2")
+sample(filename = "./en_US/en_US.news.txt.ad",prob = percentage,"2")
 percentage <- .25
 sample(filename = "./en_US/en_US.twitter.txt.ab",prob = percentage,"2")
 percentage <- .24
